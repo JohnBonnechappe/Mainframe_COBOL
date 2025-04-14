@@ -1,0 +1,142 @@
+#
+# List mainframe files in a specific PDS or PS dataset
+#
+name: Zowe List Datasets 03.6.5.2
+
+run-name: ${{ github.actor }} trig ${{ github.workflow }}
+
+on:
+  push:
+    branches: [ main ]
+    paths: ['**.pdf' , '**.DOC']
+
+# accept a manual run from the app or from http.
+  workflow_dispatch:
+      inputs:
+          run_zowe:
+              description: 'Run ZOWE?'
+              type: choice
+              options:
+                    - 'Y'
+                    - 'N'
+              required: false
+              default: 'Y'
+
+
+          pds_name:
+              description: 'PDS name?'
+              type: string
+              required: false
+              default: 'CBL'
+
+          show_attributes:
+              description: 'See file attributes?'
+              type: boolean
+              required: true
+              default: false
+              
+  repository_dispatch:
+   inputs:
+          run_zowe:
+            type: boolean
+            required: true
+          pds_name:
+            type: string
+          show_attributes:
+            type: boolean
+   
+jobs:
+  gwf-mf-list01:
+    timeout-minutes: 3
+    runs-on: ubuntu-latest
+    env:
+        ZOWE_CLI_HOME: ".github/.zowe"
+        ZOWE_USERNAME: ${{ secrets.ZOWE_USERNAME }}
+        ZOWE_PASSWORD: ${{ secrets.ZOWE_PASSWORD }}
+    defaults:
+        run:
+          shell: bash
+ #         working-directory: ./scripts
+    
+    steps:
+    - uses: actions/checkout@v4
+      timeout-minutes: 3
+    
+    - name: gwf_name01
+      run: |
+         echo "Hi World"
+         echo "Param=${{ github.event.inputs.run_zowe }}"
+         echo "Param=${{ github.event.inputs.pds_name }}"
+         echo "home=$ZOWE_CLI_HOME"
+         echo "Att=${{ github.event.inputs.show_attributes }}"
+    
+    - name: check_node
+      run: node -v
+
+    - name: Install ZOWE CLI
+      if: ${{ github.event.inputs.run_zowe == 'Y' }}
+      run: npm install -g @zowe/cli@latest
+
+    - name: check_zowe
+      if: ${{ github.event.inputs.run_zowe == 'Y' }}
+      run: zowe --version
+
+    - name: check_zowe2
+      if: ${{ github.event.inputs.run_zowe == 'Y' }}
+      run: zowe config list
+
+    - name: build_params
+      env:
+        ZOWE_DOT:      "."
+        ZOWE_PDS:      ${{github.event.inputs.pds_name}}
+        ZOWE_ATTR:     ${{github.event.inputs.show_attributes}}
+      run: |
+        echo "VAR_PDS=$ZOWE_USERNAME$ZOWE_DOT$ZOWE_PDS" >> $GITHUB_ENV
+        if [$ZOWE_ATTR == true]; then
+            echo "VAR_ATTR=-a" >> $GITHUB_ENV 
+        else
+            echo "VAR_ATTR="   >> $GITHUB_ENV 
+        fi
+        
+    - name: list_zowe_ps
+#      env:
+      if: ${{ github.event.inputs.run_zowe == 'Y' }}
+      run: zowe zos-files list ds $ZOWE_USERNAME  --user $ZOWE_USERNAME  --password $ZOWE_PASSWORD $VAR_ATTR
+ #     else:
+
+    - name: list_zowe_pds
+#      env:
+      if: ${{ github.event.inputs.run_zowe == 'Y' }}
+      run: |
+         echo "-------"
+         echo "pds=$ATTR_PDS"
+         echo "attr=$ATTR_VAR"
+         echo "--------"
+         zowe zos-files list am $VAR_PDS --u $ZOWE_USERNAME --pw $ZOWE_PASSWORD $VAR_ATTR
+
+# display the location where global installs are put
+    - name: createFile
+      run: touch testdat.dat
+
+    - name: modFile
+      run: echo "Some data" > testdat.dat
+
+    - name: check_default2
+      run: echo "$(pwd)"
+
+    - name: listFile
+      run: ls -l
+
+    - name: cd_chk
+      run: cd testDir
+
+    - name: check_default3
+      run: echo "$(pwd)"
+
+    - name: listFile2
+      run: ls -l
+
+    - name: cleanup
+      run: echo "Job done"
+      
+#***************************************************
