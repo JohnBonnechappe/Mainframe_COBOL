@@ -8,7 +8,7 @@
 
 👍 working with ZOWE CLI
 
-👌 I have assumed the reader is familiar with generic COBOL, SQL, CICS and can use ISPF, VScode with Zxplore, ZOWE desktop, GIThub workflows as needed.
+👌 I have assumed the reader is familiar with generic COBOL, SQL, CICS and can use ISPF, VScode with Zxplore, ZOSMF desktop, GIThub workflows as needed.
 
 👉 COBOL
 ✔ These are examples of how to code COBOL in z/os. Illustrating how to do VSAM, DB2, CICS and other useful functions.
