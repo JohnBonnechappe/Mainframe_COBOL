@@ -1,5 +1,6 @@
 IDENTIFICATION DIVISION.
-  AUTHOR: John Braddock
+  PROGRAM-ID. generic
+  AUTHOR. John Braddock
 ENVIRONMENT DIVISION.
 DATA DIVISION.
 WORKING-STORAGE SECTION.
@@ -7,8 +8,14 @@ WORKING-STORAGE SECTION.
 PROCEDURE DIVISION.
   main.
     PERFORM initialization
+    PERFORM processing
+    STOP RUN
     .
+
   initialization.
-    DISPLAY "Hi World"
+    DISPLAY "Hi World:"
     .
-  STOP RUN.
+
+  processing.
+    DISPLAY "In processing"
+    .
